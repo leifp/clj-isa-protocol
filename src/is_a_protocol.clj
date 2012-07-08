@@ -11,11 +11,12 @@
 ;; (defn general-is-a [c p h]
 ;;   (or (= c p)
 ;;       (contains? ((:ancestors h) c) p)))
-(defn general-is-a [c p h]
+(defn- general-is-a [c p h]
   (contains? ((:ancestors h) c) p))
 
-(defn nil-is-a [c p h] (nil? p))
-(defn class-is-a [c p h]
+(defn- nil-is-a [c p h] (nil? p))
+
+(defn- class-is-a [c p h]
   (or
    (and (class? p) (. ^Class p isAssignableFrom c))
    (some #(contains? ((:ancestors h) %) p) (supers c))
@@ -39,12 +40,22 @@
              ret
              (recur (is-a? h (c i) (p i)) (inc i))))))) ;;TODO hmm...
 
-(defn map-is-a? [child parent h]
+;; (defn- map-is-a? [child parent h]
+;;   (and (map? parent)
+;;        (let [cks (set (keys child)) pks (set (keys parent))]
+;;          ;; child keys more specific than parent's 
+;;          (and (clojure.set/subset? pks cks) 
+;;               (every? #(is-a? h (child %) (parent %)) pks))))) ;;TODO hmm...
+(defn- map-is-a? [child parent h]
   (and (map? parent)
-       (let [cks (set (keys child)) pks (set (keys parent))]
-         ;; child keys more specific than parent's 
-         (and (clojure.set/subset? pks cks) 
-              (every? #(is-a? h (child %) (parent %)) pks))))) ;;TODO hmm...
+       (let [sentinel (Object.)]
+         (every? 
+           (fn [[pk pv]] 
+             (let [cv (get child pk sentinel)]
+               (if (identical? cv sentinel) 
+                 false
+                 (is-a? h cv pv)))) 
+           parent))))
 
 (extend-protocol Is-A
   clojure.lang.IPersistentMap
