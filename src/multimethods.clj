@@ -7,7 +7,7 @@
 
 ;;NB: hierarchy must be IRef
 ;; in this case, use Var; in cljs, they use Atom
-(defn reset-cache
+(defn- reset-cache
   [method-cache method-table cached-hierarchy hierarchy]
   (swap! method-cache (fn [_] (deref method-table)))
   (swap! cached-hierarchy (fn [_] (deref hierarchy))))

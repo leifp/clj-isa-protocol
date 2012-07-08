@@ -3,8 +3,9 @@
 
 (declare is-a?)
 
-(defprotocol Is-A
-  (-is-a? [child parent] [child parent hierarchy]))
+;;TODO: should dispatch on parent instead, probably
+(defprotocol Is-A "A protocol to implement extensible clojure.core/isa?"
+  (-is-a? [child parent] [child parent hierarchy] "see clojure.core/isa?"))
 
 (def global-is-a-hierarchy (clojure.core/make-hierarchy))
 
@@ -61,13 +62,16 @@
   clojure.lang.IPersistentMap
   (-is-a? [c p h] (map-is-a? c p h)))
 
-(defn is-a?
+(defn is-a? 
+  "Similar to clojure.core/isa?, but can be extended to new types
+  via the Is-A protocol."
   ([child parent] (is-a? global-is-a-hierarchy child parent))
   ([hierarchy child parent]
      (or (= child parent)
          (-is-a? child parent hierarchy))))
 
-(defn derive*
+(defn derive* 
+  "Same as clojure.core/derive, with a different default global hierarchy."
   ([child parent]
      (alter-var-root #'global-is-a-hierarchy derive* child parent)
      nil)
