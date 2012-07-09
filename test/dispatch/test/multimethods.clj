@@ -1,6 +1,6 @@
-(ns test.multimethods
+(ns dispatch.test.multimethods
   (:use [clojure.test :only (are deftest is testing)])
-  (:require [multimethods :as mm]))
+  (:require [dispatch.multimethods :as mm]))
 
 ;; stolen from clojure.test-helper (in core test suite)
 (defn set-var-roots

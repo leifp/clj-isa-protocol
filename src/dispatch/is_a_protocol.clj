@@ -1,4 +1,4 @@
-(ns is-a-protocol
+(ns dispatch.is-a-protocol
   (:require clojure.set))
 
 (declare is-a?)

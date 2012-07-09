@@ -1,6 +1,6 @@
-(ns test.is-a-protocol
+(ns dispatch.test.is-a-protocol
   (:use [clojure.test :only (are deftest is testing)]
-        is-a-protocol))
+        dispatch.is-a-protocol))
 
 (deftest nil-is-a?
   (testing "nil"

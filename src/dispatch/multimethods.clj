@@ -1,7 +1,7 @@
-(ns multimethods
+(ns dispatch.multimethods
   (:refer-clojure :exclude [remove-all-methods remove-method prefer-method
                             methods get-method prefers defmulti defmethod])
-  (:use [is-a-protocol :only [is-a? global-is-a-hierarchy]]))
+  (:use [dispatch.is-a-protocol :only [is-a? global-is-a-hierarchy]]))
 
 ;;; mostly stolen from clojurescript
 
