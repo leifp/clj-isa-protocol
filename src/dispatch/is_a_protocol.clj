@@ -41,27 +41,6 @@
              ret
              (recur (is-a? h (c i) (p i)) (inc i))))))) ;;TODO hmm...
 
-;; (defn- map-is-a? [child parent h]
-;;   (and (map? parent)
-;;        (let [cks (set (keys child)) pks (set (keys parent))]
-;;          ;; child keys more specific than parent's 
-;;          (and (clojure.set/subset? pks cks) 
-;;               (every? #(is-a? h (child %) (parent %)) pks))))) ;;TODO hmm...
-(defn- map-is-a? [child parent h]
-  (and (map? parent)
-       (let [sentinel (Object.)]
-         (every? 
-           (fn [[pk pv]] 
-             (let [cv (get child pk sentinel)]
-               (if (identical? cv sentinel) 
-                 false
-                 (is-a? h cv pv)))) 
-           parent))))
-
-(extend-protocol Is-A
-  clojure.lang.IPersistentMap
-  (-is-a? [c p h] (map-is-a? c p h)))
-
 (defn is-a? 
   "Similar to clojure.core/isa?, but can be extended to new types
   via the Is-A protocol."
@@ -76,7 +55,4 @@
      (alter-var-root #'global-is-a-hierarchy derive* child parent)
      nil)
   ([h child parent] (clojure.core/derive h child parent)))
-
-;;(is-a? {:a 1 :b 2 :c 3} {:a 1 :b 2})
-;;(is-a? {:a 1 :b 2} {:a 1 :b 2 :c 3})
 
