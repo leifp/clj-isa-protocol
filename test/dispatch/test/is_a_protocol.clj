@@ -2,6 +2,19 @@
   (:use [clojure.test :only (are deftest is testing)]
         dispatch.is-a-protocol))
 
+;;TODO: this may interfere with other tests.  make local hierarchy
+(deftest derive*-rules
+  (testing "you can derive* namespaced keywords from each other"
+    (is (nil? (derive* ::child ::parent)))) ;; returns nil on success
+  (testing "you can derive* a class from a ns'ed keyword"
+    (is (nil? (derive* java.util.Date ::parent)))) ;; returns nil on success
+  (testing "you cannot derive* from a non-namespaced keyword"
+    (is (thrown? java.lang.AssertionError (derive* ::child :parent))))
+  (testing "you can only derive* a class or a namespaced keyword"
+    (is (thrown? java.lang.AssertionError (derive* :child ::parent)))
+    (is (thrown? java.lang.AssertionError (derive* 42 ::parent)))
+    (is (thrown? java.lang.AssertionError (derive* [] ::parent)))))
+
 (deftest nil-is-a?
   (testing "nil"
     (testing "is-a? itself"
@@ -25,6 +38,25 @@
     (testing "is-a? <class> <obj> is false for <obj> not a class or keyword"
       (are [obj] (false? (is-a? Integer obj))
         0 1 1.0 "str" [] [1] {} #{}))))
+
+;;TODO: use local hierarchy instead?
+(derive* ::child ::parent)
+(derive* ::child2 ::parent)
+(derive* ::grandchild ::parent)
+(derive* ::grandchild2 ::parent)
+(derive* java.util.Date ::parent)
+(derive* java.lang.Float ::child)
+(deftest keywords-is-a?
+  (testing "Keywords:"
+    (testing "a keyword is-a? all its derive*'d ancestors"
+      (are [c] (true? (is-a? c ::parent))
+        ::child ::child2 ::grandchild ::grandchild2))
+    (testing "is-a? <kw> <obj> is false for <obj> not a class or keyword"
+      (are [obj] (false? (is-a? Integer obj))
+           0 1 1.0 "str" [] [1] {} #{}))
+    (testing "you can derive* a class from a keyword"
+      (is (true? (is-a? java.util.Date ::parent)))
+      (is (true? (is-a? java.lang.Float ::parent))))))
 
 (deftest equal-is-a?
   (testing "= implies is-a?"

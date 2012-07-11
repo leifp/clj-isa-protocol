@@ -21,6 +21,10 @@
 (defmacro timeit [msg n & body] 
   `(println ~msg (with-out-str (time (dotimes [n# ~n] ~@body)))))
 
+;;TODO  use local hierarchy?
+(derive ::child ::parent)
+(derive* ::child ::parent)
+
 ;;TODO  Should benchmarks really be tests?
 (deftest benchmark-is-a
   (is 
@@ -31,6 +35,10 @@
       (timeit "is-a? nil" 10000000 (is-a? nil nil))
       (timeit "isa? class" 5000000 (isa? Float Number))
       (timeit "is-a? class" 5000000 (is-a? Float Number))
+      ;;TODO is-a? is 2-3 times slower than isa? on kw, I don't know why
+      ;;it's not true when timing at the REPL.  ???
+      (timeit "isa? keyword" 1000000 (isa? ::child ::parent))
+      (timeit "is-a? keyword" 1000000 (is-a? ::child ::parent))
       (timeit "isa? deep class" 5000000 
               (isa? clojure.lang.PersistentHashMap Object))
       (timeit "is-a? deep class" 5000000 
