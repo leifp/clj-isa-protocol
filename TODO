@@ -1,0 +1,4 @@
+* various tests modify global state, so are probably not isolated - fix
+* need comprehensive tests for all of multimethod protocol
+* performance improvement for is-a? on keywords 
+* whatever else is marked with ;TODO in the code
