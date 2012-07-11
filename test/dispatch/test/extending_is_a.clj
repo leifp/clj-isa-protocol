@@ -3,12 +3,6 @@
         [dispatch.is-a-protocol :only [is-a? Is-A]])
   (:require [dispatch.multimethods :as mm]))
 
-;; (defn- map-is-a? [child parent h]
-;;   (and (map? parent)
-;;        (let [cks (set (keys child)) pks (set (keys parent))]
-;;          ;; child keys more specific than parent's 
-;;          (and (clojure.set/subset? pks cks) 
-;;               (every? #(is-a? h (child %) (parent %)) pks))))) ;;TODO hmm...
 (defn- map-is-a? [child parent h]
   (and (map? parent)
        (let [sentinel (Object.)]
@@ -59,3 +53,40 @@
         {0 :a 1 :b} [:a :b]
         {:k :v} [[:k :v]]))))
 
+(mm/defmulti handler "multimethod ring handler" (fn [req] req))
+(mm/defmethod handler {}
+  [req] {:status 404 :headers {} :body "Not found."})
+(mm/defmethod handler {:request-method :get}
+  [req] {:status 200 :headers {} :body "Generic GET."})
+(mm/defmethod handler {:request-method :get, :content-type "application/json"}
+  [req] {:status 200 :headers {} :body "\"GET some json.\""})
+(mm/defmethod handler {:request-method :get, :content-type "application/xml"}
+  [req] {:status 200 :headers {} :body "<foo>GET some XML.</foo>"})
+(mm/defmethod handler {:request-method :get,
+                       :content-type "application/json"
+                       :headers {"app/client-status" "favored-nation"}}
+  [req] {:status 200 :headers {} :body "\"GET some super-special json.\""})
+
+(deftest multimethod-with-map-dispatch-val
+  (testing "Multimethods dispatched on maps"
+    (are [req resp] (= (handler req) resp)
+         {:request-method :get}
+         {:status 200, :headers {}, :body "Generic GET."}
+         
+         {:request-method :post}
+         {:status 404, :headers {}, :body "Not found."}
+
+         {:request-method :get :content-type "application/xml"}
+         {:status 200, :headers {}, :body "<foo>GET some XML.</foo>"}
+
+         {:request-method :get :content-type "application/json"}
+         {:status 200, :headers {}, :body "\"GET some json.\""}
+
+         {:request-method :get :headers {"anything" "really"}
+          :content-type "application/json"}
+         {:status 200, :headers {}, :body "\"GET some json.\""}
+
+         {:request-method :get
+          :headers {"anything" "really", "app/client-status" "favored-nation"}
+          :content-type "application/json"}
+         {:status 200, :headers {}, :body "\"GET some super-special json.\""})))
