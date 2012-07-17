@@ -2,8 +2,8 @@
   (:use dispatch.is-a-protocol))
 
 ;; ensure that is-a? is extended to maps
-(defn- map-is-a? [child parent h]
-  (and (map? parent)
+(defn- map-is-a? [parent child h]
+  (and (map? child)
        (let [sentinel (Object.)]
          (every? 
            (fn [[pk pv]] 
@@ -15,7 +15,7 @@
 
 (extend-protocol Is-A
   clojure.lang.IPersistentMap
-  (-is-a? [c p h] (map-is-a? c p h)))
+  (-is-a? [p c h] (map-is-a? p c h)))
 
 (defmacro timeit [msg n & body] 
   `(print ~msg (with-out-str (time (dotimes [n# ~n] ~@body)))))

@@ -21,8 +21,8 @@ you want generally, e.g. `(core/isa? specific.Float general.Number)` or
     (:use [dispatch.is-a-protocol :only [is-a? Is-A]])
     (:require [dispatch.multimethods :as mm]))
 
-  (defn- map-is-a? [child parent h]
-    (and (map? parent)
+  (defn- map-is-a? [parent child h]
+    (and (map? child)
          (let [sentinel (Object.)]
            (every? 
              (fn [[pk pv]]  ;; for every key in parent
@@ -34,7 +34,7 @@ you want generally, e.g. `(core/isa? specific.Float general.Number)` or
    
   (extend-protocol Is-A
     clojure.lang.IPersistentMap
-    (-is-a? [c p h] (map-is-a? c p h)))
+    (-is-a? [p c h] (map-is-a? p c h)))
 ```
 
 This now makes dispatching, say, Ring requests to more and more specific
